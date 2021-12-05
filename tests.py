@@ -22,8 +22,9 @@ class PartyTests(unittest.TestCase):
     def test_no_rsvp_yet(self):
         """Do users who haven't RSVPed see the correct view?"""
 
-        # FIXME: Add a test to show we haven't RSVP'd yet
-        print("FIXME")
+        result = self.client.get("/")
+        self.assertIn(b"Please RSVP", result.data)
+        print("test_no_rsvp_yet complete")
 
     def test_rsvp(self):
         """Do RSVPed users see the correct view?"""
@@ -32,16 +33,37 @@ class PartyTests(unittest.TestCase):
 
         result = self.client.post("/rsvp", data=rsvp_info,
                                   follow_redirects=True)
+        
+        self.assertIn(b"Party Details", result.data)
+        self.assertNotIn(b"Please RSVP", result.data)
 
-        # FIXME: check that once we log in we see party details--but not the form!
-        print("FIXME")
+        print("test_rsvp complete")
 
     def test_rsvp_mel(self):
         """Can we keep Mel out?"""
 
-        # FIXME: write a test that mel can't invite himself
-        pass
-        print("FIXME")
+        rsvp_info = {'name': "Mel Melitpolski", 'email': "mel@ubermelon.com"}
+        
+        result = self.client.post("/rsvp", data=rsvp_info,
+                                  follow_redirects=True)
+        
+        self.assertNotIn(b"Party Details", result.data)
+
+        rsvp_info = {'name': "Melon Melitpolski", 'email': "mel@ubermelon.com"}
+        
+        result = self.client.post("/rsvp", data=rsvp_info,
+                                  follow_redirects=True)
+        
+        self.assertNotIn(b"Party Details", result.data)
+
+        rsvp_info = {'name': "Mel Melitpolski", 'email': "jane@jane.com"}
+        
+        result = self.client.post("/rsvp", data=rsvp_info,
+                                  follow_redirects=True)
+        
+        self.assertNotIn(b"Party Details", result.data)
+
+        print("test_rsvp_mel complete")
 
 
 if __name__ == "__main__":
